@@ -153,6 +153,7 @@ export default function Navbar() {
                 </div>
               </Link>
               <Link to="/popup" className={linkClass('/popup')}>Pop-up Store</Link>
+              <Link to="/menu" className={linkClass('/menu')}>Menu</Link>
             </>
           )
         ) : (
@@ -234,6 +235,9 @@ export default function Navbar() {
             <Button asChild variant="ghost" className="hidden md:flex text-slate-300 hover:text-white hover:bg-slate-800">
               <Link to="/popup">Pop-up Store</Link>
             </Button>
+            <Button asChild variant="ghost" className="hidden md:flex text-slate-300 hover:text-white hover:bg-slate-800">
+              <Link to="/menu">Menu</Link>
+            </Button>
             <Button asChild className="hidden md:inline-flex bg-primary hover:bg-primary/90 text-slate-950 font-semibold shadow-[0_0_15px_rgba(193,154,107,0.3)] hover:shadow-[0_0_20px_rgba(193,154,107,0.5)] glow-primary">
               <Link to="/login">Sign In</Link>
             </Button>
@@ -260,6 +264,7 @@ export default function Navbar() {
                   <a href="/#rates" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Rates</a>
                   <a href="/#location" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Location</a>
                   <Link to="/popup" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Pop-up Store</Link>
+                  <Link to="/menu" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Menu</Link>
                   <Button asChild className="w-full mt-2 bg-primary hover:bg-primary/90 text-slate-950 font-semibold shadow-md" onClick={() => setMobileMenuOpen(false)}>
                     <Link to="/login">Sign In</Link>
                   </Button>
@@ -280,6 +285,7 @@ export default function Navbar() {
                   <Link to="/openplay" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Open Play Feed</Link>
                   <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>My Profile</Link>
                   <Link to="/popup" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Pop-up Store</Link>
+                  <Link to="/menu" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Menu</Link>
                 </div>
               )}
 

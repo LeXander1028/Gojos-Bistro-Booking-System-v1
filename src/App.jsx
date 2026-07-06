@@ -14,6 +14,7 @@ import MyBookings from './pages/MyBookings';
 import OpenPlay from './pages/OpenPlay';
 import Profile from './pages/Profile';
 import PopUpStore from './pages/PopUpStore';
+import MenuPage from './pages/Menu';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -80,6 +81,7 @@ function MainLayout() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<AnonymousRoute><Login /></AnonymousRoute>} />
           <Route path="/popup" element={<PopUpStore />} />
+          <Route path="/menu" element={<MenuPage />} />
           
           {/* Onboarding */}
           <Route path="/onboarding" element={
