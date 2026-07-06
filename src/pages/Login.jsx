@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { ShieldCheck, Mail, Lock, User, Phone, MapPin, AlertCircle, Eye, EyeOff } from 'lucide-react';
-const logo = 'https://placehold.co/400x400/111111/c19a6b?text=Gojo';
+import logo from '../assets/gojos-logo.png';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

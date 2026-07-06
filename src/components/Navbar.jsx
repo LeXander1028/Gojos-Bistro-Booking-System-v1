@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import { Bell, Menu, X, LogOut, Shield, User, Calendar, Trophy, HelpCircle } from 'lucide-react';
-const logo = 'https://placehold.co/400x400/111111/c19a6b?text=Gojo';
+import logo from '../assets/gojos-logo.png';
 
 // Shadcn Components
 import { Button } from "@/components/ui/button";
