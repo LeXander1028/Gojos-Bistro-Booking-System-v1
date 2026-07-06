@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
-const menu1 = 'https://placehold.co/800x1200/111111/c19a6b?text=Menu+Page+1';
-const menu2 = 'https://placehold.co/800x1200/111111/c19a6b?text=Menu+Page+2';
+import menu1 from '../assets/menu-1.png';
+import menu2 from '../assets/menu-2.png';
 
 export default function MenuPage() {
   const [loadedImages, setLoadedImages] = useState(0);
