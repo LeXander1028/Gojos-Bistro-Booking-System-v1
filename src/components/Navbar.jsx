@@ -49,7 +49,7 @@ export default function Navbar() {
             {
               id: 'mock-2',
               title: 'Welcome to Gojo\'s Bistro!',
-              message: 'Book your first session today and get ready to play or relax with some coffee.',
+              message: 'Book your first session today and get ready to play or relax with a frappe.',
               created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
               read: true
             }
@@ -94,11 +94,10 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   // Active styles helper
-  const linkClass = (path) => 
-    `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-      isActive(path)
-        ? 'bg-primary/10 text-primary border border-primary/20 shadow-[0_0_12px_rgba(193,154,107,0.1)]'
-        : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+  const linkClass = (path) =>
+    `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(path)
+      ? 'bg-primary/10 text-primary border border-primary/20 shadow-[0_0_12px_rgba(193,154,107,0.1)]'
+      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
     }`;
 
   const mobileLinkClass = "p-3 rounded-lg text-left text-sm font-medium text-slate-200 hover:bg-slate-800 block";
@@ -114,7 +113,7 @@ export default function Navbar() {
           <span className="font-display font-extrabold text-lg leading-tight tracking-wider text-white group-hover:text-primary transition-colors">
             GOJO'S <span className="text-primary group-hover:text-white">BISTRO</span>
           </span>
-          <span className="text-[9px] tracking-widest text-slate-500 uppercase font-medium">Coffee & Pickleball</span>
+          <span className="text-[9px] tracking-widest text-slate-500 uppercase font-medium">Food & Drinks</span>
         </div>
       </Link>
 
@@ -152,7 +151,7 @@ export default function Navbar() {
                   <User size={15} /> Profile
                 </div>
               </Link>
-              <Link to="/popup" className={linkClass('/popup')}>Pop-up Store</Link>
+
               <Link to="/menu" className={linkClass('/menu')}>Menu</Link>
             </>
           )
@@ -171,8 +170,8 @@ export default function Navbar() {
         {user ? (
           <>
             {/* Notification Bell using DropdownMenu */}
-            <DropdownMenu 
-              open={notificationsOpen} 
+            <DropdownMenu
+              open={notificationsOpen}
               onOpenChange={(open) => {
                 setNotificationsOpen(open);
                 if (!open) markAllAsRead();
@@ -201,13 +200,12 @@ export default function Navbar() {
                     <p className="text-xs text-slate-500 text-center py-4">No notifications yet.</p>
                   ) : (
                     notifications.map(n => (
-                      <DropdownMenuItem 
-                        key={n.id} 
-                        className={`flex flex-col items-start gap-1 p-2.5 rounded-lg focus:bg-primary/10 focus:text-white cursor-default ${
-                          n.read 
-                            ? 'text-slate-400 opacity-80' 
+                      <DropdownMenuItem
+                        key={n.id}
+                        className={`flex flex-col items-start gap-1 p-2.5 rounded-lg focus:bg-primary/10 focus:text-white cursor-default ${n.read
+                            ? 'text-slate-400 opacity-80'
                             : 'bg-primary/5 text-slate-200'
-                        }`}
+                          }`}
                       >
                         <p className="font-medium text-xs">{n.title}</p>
                         <p className="text-[11px] leading-relaxed mt-0.5">{n.message}</p>
@@ -232,9 +230,7 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Button asChild variant="ghost" className="hidden md:flex text-slate-300 hover:text-white hover:bg-slate-800">
-              <Link to="/popup">Pop-up Store</Link>
-            </Button>
+
             <Button asChild variant="ghost" className="hidden md:flex text-slate-300 hover:text-white hover:bg-slate-800">
               <Link to="/menu">Menu</Link>
             </Button>
@@ -256,14 +252,14 @@ export default function Navbar() {
               <SheetHeader className="hidden">
                 <SheetTitle>Navigation Menu</SheetTitle>
               </SheetHeader>
-              
+
               {!user ? (
                 <div className="flex flex-col gap-2">
                   <Link to="/" onClick={() => { setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={mobileLinkClass}>Home</Link>
                   <a href="/#features" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Features</a>
                   <a href="/#rates" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Rates</a>
                   <a href="/#location" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Location</a>
-                  <Link to="/popup" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Pop-up Store</Link>
+
                   <Link to="/menu" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Menu</Link>
                   <Button asChild className="w-full mt-2 bg-primary hover:bg-primary/90 text-slate-950 font-semibold shadow-md" onClick={() => setMobileMenuOpen(false)}>
                     <Link to="/login">Sign In</Link>
@@ -284,7 +280,7 @@ export default function Navbar() {
                   <Link to="/bookings" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>My Bookings</Link>
                   <Link to="/openplay" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Open Play Feed</Link>
                   <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>My Profile</Link>
-                  <Link to="/popup" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Pop-up Store</Link>
+
                   <Link to="/menu" onClick={() => setMobileMenuOpen(false)} className={mobileLinkClass}>Menu</Link>
                 </div>
               )}

@@ -59,11 +59,11 @@ export default function UserBookingTimeGrid({
         <span className="text-xs text-slate-400">Duration: <strong>{duration} hour{duration > 1 ? 's' : ''}</strong></span>
         <div className="flex items-center gap-4 text-xs">
           <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
             <span className="text-slate-400">Full (All Courts Free)</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
             <span className="text-slate-400">Partial (Few Courts Free)</span>
           </div>
         </div>
@@ -115,9 +115,9 @@ export default function UserBookingTimeGrid({
           }
 
           const isFull = availability === 'full';
-          const indicatorColor = isFull ? 'bg-emerald-500' : 'bg-amber-500';
+          const indicatorColor = isFull ? 'bg-green-500' : 'bg-blue-500';
           const borderColor = isSelected 
-            ? 'border-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.2)] bg-emerald-500/10' 
+            ? 'border-green-500 shadow-[0_0_12px_rgba(34,197,94,0.2)] bg-green-500/10' 
             : 'border-white/10 bg-slate-900/40 hover:border-white/20';
 
           // Color for time slot badge

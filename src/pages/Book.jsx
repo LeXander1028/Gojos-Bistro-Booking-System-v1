@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAvailability } from '../hooks/useAvailability';
 import { supabase } from '../lib/supabase';
@@ -20,6 +20,7 @@ const DRAFT_KEY = 'gojos_booking_draft';
 export default function Book() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Wizard Step
   const [step, setStep] = useState(1);
@@ -98,7 +99,15 @@ export default function Book() {
         console.error("Failed to parse draft draft", e);
       }
     }
-  }, [profile]);
+
+    // Apply prefill from calendar if it exists (overrides draft)
+    if (location.state?.prefillDate) {
+      setDate(location.state.prefillDate);
+    }
+    if (location.state?.prefillHour !== undefined) {
+      setSelectedHour(location.state.prefillHour);
+    }
+  }, [profile, location.state]);
 
   // Load active payment methods
   useEffect(() => {

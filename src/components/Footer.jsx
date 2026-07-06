@@ -12,7 +12,7 @@ export default function Footer() {
             GOJO'S <span className="text-primary font-semibold">BISTRO</span>
           </span>
           <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-            {VENUE_INFO.tagline}. A premium coffee and pickleball spot located in Balamban, Cebu.
+            {VENUE_INFO.tagline}. A premium food, drinks, and pickleball spot located in Balamban, Cebu.
           </p>
         </div>
 
@@ -25,10 +25,10 @@ export default function Footer() {
               <span>{VENUE_INFO.address}</span>
             </div>
             <div className="flex gap-4 mt-1">
-              <a 
-                href={VENUE_INFO.contact.googleMapsLink} 
-                target="_blank" 
-                rel="noreferrer" 
+              <a
+                href={VENUE_INFO.contact.googleMapsLink}
+                target="_blank"
+                rel="noreferrer"
                 className="text-primary hover:text-primary/80 font-medium transition-colors"
               >
                 Google Maps
@@ -51,10 +51,10 @@ export default function Footer() {
             </div>
             <div className="flex gap-2 items-center">
               <Globe size={14} className="text-primary" />
-              <a 
-                href={VENUE_INFO.contact.facebook} 
-                target="_blank" 
-                rel="noreferrer" 
+              <a
+                href={VENUE_INFO.contact.facebook}
+                target="_blank"
+                rel="noreferrer"
                 className="hover:underline hover:text-white"
               >
                 Facebook Page
@@ -67,7 +67,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto border-t border-white/5 mt-8 pt-4 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500">
         <p>© {new Date().getFullYear()} Gojo's Bistro. All rights reserved.</p>
         <p className="flex items-center gap-1 mt-2 sm:mt-0">
-          <Shield size={12} className="text-primary/50" /> Built for Coffee & Pickleball Lovers
+          <Shield size={12} className="text-primary/50" /> Built for Food, Drinks, and Pickleball Lovers
         </p>
       </div>
     </footer>

@@ -5,7 +5,7 @@ export const VENUE_INFO = {
   shortName: "Gojo's Bistro",
   location: "Prenza, Balamban, Cebu",
   address: "Prenza, Balamban, Cebu, Philippines",
-  tagline: "Coffee & Pickleball · Open Daily",
+  tagline: "Food & Drinks Hub · Open Daily",
   courtCount: 3,
   courts: [
     { id: "court-1", name: "Court 1", is_active: true, netColor: "black" },
@@ -17,7 +17,7 @@ export const VENUE_INFO = {
     phone: "09179710229 / 09459662613",
     facebook: "https://www.facebook.com/",
     facebookMessage: "https://m.me/",
-    googleMapsLink: "https://maps.google.com",
+    googleMapsLink: "https://maps.app.goo.gl/o7e4ERDByXQ2r2oH9",
     wazeLink: "https://waze.com/"
   }
 };
@@ -30,11 +30,11 @@ export const PRICING = {
     13: 600, 14: 600, 15: 600, 16: 600, 17: 600, 18: 600,
     19: 600, 20: 600, 21: 600, 22: 600, 23: 600
   },
-  
+
   // Mon-Thurs Promo slot details:
   // Mon-Thurs, 6 AM - 12 NN, rate is ₱300 per person/head for the slot or ₱300/hr per court.
   promoRatePerHour: 300,
-  
+
   // Extras
   paddleRate: 100,
   ballRate: 100,

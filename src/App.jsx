@@ -13,8 +13,9 @@ import Book from './pages/Book';
 import MyBookings from './pages/MyBookings';
 import OpenPlay from './pages/OpenPlay';
 import Profile from './pages/Profile';
-import PopUpStore from './pages/PopUpStore';
+
 import MenuPage from './pages/Menu';
+import Gallery from './pages/Gallery';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -80,8 +81,9 @@ function MainLayout() {
           {/* Public / Anonymous Routes */}
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<AnonymousRoute><Login /></AnonymousRoute>} />
-          <Route path="/popup" element={<PopUpStore />} />
+
           <Route path="/menu" element={<MenuPage />} />
+          <Route path="/gallery/:category" element={<Gallery />} />
           
           {/* Onboarding */}
           <Route path="/onboarding" element={

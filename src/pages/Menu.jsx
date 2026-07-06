@@ -11,7 +11,7 @@ export default function MenuPage() {
 
   return (
     <div className="flex flex-col items-center justify-start min-h-[85vh] px-4 py-12 relative bg-[#111111]">
-      
+
       <div className="w-full max-w-4xl text-center mb-12">
         <span className="text-primary font-serif italic text-sm mb-4 block">Gojo's Bistro</span>
         <h1 className="font-display font-black text-5xl md:text-6xl text-white uppercase leading-[0.9] tracking-tighter">
@@ -21,7 +21,7 @@ export default function MenuPage() {
       </div>
 
       <div className="max-w-3xl w-full mx-auto flex flex-col gap-8 relative min-h-[50vh]">
-        
+
         {!allLoaded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-primary bg-[#111111] z-10">
             <Loader2 className="w-10 h-10 animate-spin" />
@@ -31,21 +31,21 @@ export default function MenuPage() {
 
         <div className={`flex flex-col gap-12 transition-opacity duration-700 ${allLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <div className="rounded-xl overflow-hidden shadow-2xl border border-white/5 bg-slate-900/20">
-            <img 
-              src={menu1} 
-              alt="Gojo's Bistro Menu Page 1" 
+            <img
+              src={menu1}
+              alt="Gojo's Bistro Menu Page 1"
               onLoad={() => setLoadedImages(prev => prev + 1)}
               onError={() => setLoadedImages(prev => prev + 1)}
-              className="w-full h-auto object-contain" 
+              className="w-full h-auto object-contain"
             />
           </div>
           <div className="rounded-xl overflow-hidden shadow-2xl border border-white/5 bg-slate-900/20">
-            <img 
-              src={menu2} 
-              alt="Gojo's Bistro Menu Page 2" 
+            <img
+              src={menu2}
+              alt="Gojo's Bistro Menu Page 2"
               onLoad={() => setLoadedImages(prev => prev + 1)}
               onError={() => setLoadedImages(prev => prev + 1)}
-              className="w-full h-auto object-contain" 
+              className="w-full h-auto object-contain"
             />
           </div>
         </div>
