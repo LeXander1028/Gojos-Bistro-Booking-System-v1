@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
-import { User, Phone, MapPin, AlertCircle, CheckCircle, Shield } from 'lucide-react';
+import { User, Phone, MapPin, AlertCircle, CheckCircle, Shield, KeyRound } from 'lucide-react';
 
 export default function Profile() {
   const { user, profile, refreshProfile } = useAuth();
@@ -11,6 +11,15 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
+
+  // Password fields
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwdSaving, setPwdSaving] = useState(false);
+  const [pwdSuccess, setPwdSuccess] = useState(false);
+  const [pwdError, setPwdError] = useState(null);
+
+  const isGoogleUser = user?.app_metadata?.provider === 'google';
 
   useEffect(() => {
     if (profile) {
@@ -52,6 +61,43 @@ export default function Profile() {
       setError(err.message || "Failed to update profile settings.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (!user) return;
+    setPwdSaving(true);
+    setPwdSuccess(false);
+    setPwdError(null);
+
+    if (newPassword.length < 6) {
+      setPwdError("Password must be at least 6 characters long.");
+      setPwdSaving(false);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPwdError("Passwords do not match.");
+      setPwdSaving(false);
+      return;
+    }
+
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (updateError) throw updateError;
+
+      setPwdSuccess(true);
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      console.error(err);
+      setPwdError(err.message || "Failed to update password.");
+    } finally {
+      setPwdSaving(false);
     }
   };
 
@@ -152,6 +198,75 @@ export default function Profile() {
           </button>
         </form>
       </div>
+
+      {!isGoogleUser && (
+        <div className="glass border border-white/5 rounded-2xl p-6 sm:p-8 flex flex-col gap-6 relative shadow-2xl mt-4">
+          <div className="flex flex-col gap-1">
+            <h3 className="font-display font-bold text-lg text-white">Change Password</h3>
+            <p className="text-slate-400 text-xs">Update your account password to keep it secure.</p>
+          </div>
+
+          {pwdSuccess && (
+            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex gap-2 items-center">
+              <CheckCircle size={16} className="shrink-0" />
+              <span>Password successfully updated!</span>
+            </div>
+          )}
+
+          {pwdError && (
+            <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex gap-2 items-center">
+              <AlertCircle size={16} className="shrink-0" />
+              <span>{pwdError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-slate-400 font-semibold" htmlFor="newPassword">New Password</label>
+              <div className="relative">
+                <KeyRound size={16} className="absolute left-3.5 top-3.5 text-slate-500" />
+                <input
+                  id="newPassword"
+                  type="password"
+                  required
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  className="w-full bg-slate-950 border border-white/5 focus:border-emerald-500 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-slate-400 font-semibold" htmlFor="confirmPassword">Confirm Password</label>
+              <div className="relative">
+                <KeyRound size={16} className="absolute left-3.5 top-3.5 text-slate-500" />
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  required
+                  placeholder="Re-type new password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  className="w-full bg-slate-950 border border-white/5 focus:border-emerald-500 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={pwdSaving}
+              className="w-full py-3.5 mt-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm rounded-xl border border-white/5 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {pwdSaving ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                "Update Password"
+              )}
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

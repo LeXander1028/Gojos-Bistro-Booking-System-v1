@@ -381,6 +381,13 @@ export const supabaseSimulation = {
       return { error: null };
     },
 
+    updateUser: async (attributes) => {
+      if (!currentSession) {
+        return { data: null, error: { message: "Not authenticated" } };
+      }
+      return { data: { user: currentSession.user }, error: null };
+    },
+
     getSession: async () => {
       return { data: { session: currentSession }, error: null };
     },

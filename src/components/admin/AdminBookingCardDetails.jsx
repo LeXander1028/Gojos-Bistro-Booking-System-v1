@@ -156,7 +156,7 @@ export default function AdminBookingCardDetails({ booking, onVerify, onCancel, o
       {/* Confirmation Modal */}
       {showConfirmModal && createPortal(
         <div 
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setShowConfirmModal(false)}
         >
           <div 
@@ -195,7 +195,7 @@ export default function AdminBookingCardDetails({ booking, onVerify, onCancel, o
       {/* Cancel Modal */}
       {showCancelModal && createPortal(
         <div 
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setShowCancelModal(false)}
         >
           <div 

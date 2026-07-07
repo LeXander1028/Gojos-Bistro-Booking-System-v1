@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { getAdminBookingCategory, BOOKING_STATUSES, ADMIN_CATEGORY_META } from '../../utils/bookingStatus';
+import { getAdminBookingCategory, BOOKING_STATUSES } from '../../utils/bookingStatus';
 import { buildFullNotes, parseBookingNotes } from '../../utils/parseBookingNotes';
 import AdminBookingCardDetails from '../../components/admin/AdminBookingCardDetails';
-import { Calendar, User, Phone, Check, ShieldAlert, Plus, X, Search, CheckCircle2, Minus, AlertCircle } from 'lucide-react';
+import AdminCalendarGrid from '../../components/admin/AdminCalendarGrid';
+import AdminTimetable from '../../components/admin/AdminTimetable';
+import { Plus, X, Search, CheckCircle2, Minus, AlertCircle } from 'lucide-react';
 import { VENUE_INFO } from '../../lib/constants';
 
 export default function AdminBookings() {
   const [bookings, setBookings] = useState([]);
+  const [blockedSlots, setBlockedSlots] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState('paid_verify'); // default filter
+
+  // Calendar & Timetable state
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedBookingModal, setSelectedBookingModal] = useState(null); // the booking object to show in modal
 
   // Refund Modal states
   const [refundModalBooking, setRefundModalBooking] = useState(null);
@@ -20,7 +27,7 @@ export default function AdminBookings() {
   const [successMsg, setSuccessMsg] = useState(null);
 
   const formatHour = (hour) => {
-    if (hour === 0) return '12:00 MN';
+    if (hour === 0 || hour === 24) return '12:00 MN';
     if (hour === 12) return '12:00 PM';
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const h = hour % 12 === 0 ? 12 : hour % 12;
@@ -38,32 +45,38 @@ export default function AdminBookings() {
   const [resCollected, setResCollected] = useState(false);
   const [reserveError, setReserveError] = useState(null);
 
-  async function loadBookings() {
+  async function loadData() {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const year = currentMonth.getFullYear();
+      const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
+      // Fetch roughly a wide range to allow scrolling months without constant refetching, or just fetch all active bookings
+      
+      const { data: bData, error: bError } = await supabase
         .from('bookings')
         .select('*')
         .order('date', { ascending: false })
         .order('start_hour', { ascending: true });
 
-      if (!error && data) {
-        setBookings(data);
-      }
+      const { data: blockData, error: blockError } = await supabase
+        .from('blocked_slots')
+        .select('*');
+
+      if (!bError && bData) setBookings(bData);
+      if (!blockError && blockData) setBlockedSlots(blockData);
     } catch (err) {
-      console.error("Failed to load bookings list:", err);
+      console.error("Failed to load data:", err);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    loadBookings();
-  }, []);
+    loadData();
+  }, [currentMonth]);
 
   const handleVerify = async (id) => {
     try {
-      // Get booking row to retrieve owner user_id
       const b = bookings.find(item => item.id === id);
       if (!b) return;
 
@@ -74,7 +87,6 @@ export default function AdminBookings() {
 
       if (error) throw error;
 
-      // Notify player
       if (b.user_id) {
         await supabase.from('notifications').insert({
           user_id: b.user_id,
@@ -85,6 +97,11 @@ export default function AdminBookings() {
       }
 
       setBookings(prev => prev.map(item => item.id === id ? { ...item, status: BOOKING_STATUSES.CONFIRMED } : item));
+      
+      // Update modal if open
+      if (selectedBookingModal?.id === id) {
+        setSelectedBookingModal(prev => ({ ...prev, status: BOOKING_STATUSES.CONFIRMED }));
+      }
     } catch (err) {
       alert("Failed to confirm booking: " + err.message);
     }
@@ -100,6 +117,11 @@ export default function AdminBookings() {
       if (error) throw error;
 
       setBookings(prev => prev.map(item => item.id === id ? { ...item, payment_collected: true } : item));
+      
+      // Update modal if open
+      if (selectedBookingModal?.id === id) {
+        setSelectedBookingModal(prev => ({ ...prev, payment_collected: true }));
+      }
     } catch (err) {
       alert("Failed to collect payment: " + err.message);
     }
@@ -122,7 +144,6 @@ export default function AdminBookings() {
 
       if (error) throw error;
 
-      // Notify player
       if (b.user_id) {
         let msg = `Your court booking on ${b.date} has been cancelled by the Gojo's Bistro Management Team.`;
         if (reason && reason.trim()) msg += `\nReason: ${reason.trim()}`;
@@ -136,6 +157,11 @@ export default function AdminBookings() {
       }
 
       setBookings(prev => prev.map(item => item.id === id ? { ...item, ...updateData } : item));
+      
+      // Close modal on cancel
+      if (selectedBookingModal?.id === id) {
+        setSelectedBookingModal(null);
+      }
 
       const parsedNotes = parseBookingNotes(b.notes);
       const bookerName = parsedNotes.bookerName || 'Guest';
@@ -147,14 +173,13 @@ export default function AdminBookings() {
       const formattedDate = `${months[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
 
       setSuccessMsg(
-        <>
+        <React.Fragment>
           Booking for Court {courtNum} on {formattedDate} from {formatHour(b.start_hour)} to {formatHour(endHour)} from {bookerName} was successfully cancelled.
           <br />
           GCASH Reference No. ({b.payment_reference || 'None'})
-        </>
+        </React.Fragment>
       );
 
-      // Trigger refund modal if there was a payment collected or reference
       if (b.payment_reference || b.payment_collected) {
         setRefundModalBooking(b);
         setIsRefundMinimized(false);
@@ -164,7 +189,6 @@ export default function AdminBookings() {
     }
   };
 
-  // Submit Admin desk reserve
   const handleAdminReserve = async (e) => {
     e.preventDefault();
     setReserveError(null);
@@ -180,7 +204,6 @@ export default function AdminBookings() {
     }
 
     try {
-      // Calculate price
       let total = 0;
       for (let i = 0; i < resDuration; i++) {
         const hr = (resStart + i) % 24;
@@ -190,7 +213,6 @@ export default function AdminBookings() {
         else total += 500;
       }
 
-      // Check collision
       const overlaps = bookings.some(b =>
         b.court_id === resCourt &&
         b.date === resDate &&
@@ -211,13 +233,13 @@ export default function AdminBookings() {
       const { data, error } = await supabase
         .from('bookings')
         .insert({
-          user_id: null, // admin desk
+          user_id: null,
           court_id: resCourt,
           date: resDate,
           start_hour: resStart,
           duration_hours: resDuration,
           total_price: total,
-          status: 'confirmed', // immediately confirmed
+          status: 'confirmed',
           notes,
           contact_phone: resPhone,
           payment_reference: 'ADMIN',
@@ -227,42 +249,35 @@ export default function AdminBookings() {
       if (error) throw error;
 
       setShowReserveModal(false);
-
-      // Reset values
       setResName('');
       setResPhone('');
       setResCollected(false);
 
-      // Reload
-      await loadBookings();
+      await loadData();
     } catch (err) {
       console.error(err);
       setReserveError(err.message || "Failed to save admin reservation.");
     }
   };
 
-  // Filter & Search logic
-  const filteredBookings = bookings.filter(b => {
-    const category = getAdminBookingCategory(b);
-    const matchesFilter = activeFilter === 'all' || category === activeFilter;
-
-    const term = searchQuery.toLowerCase();
-    const matchesSearch = !term ||
-      b.contact_phone?.toLowerCase().includes(term) ||
-      b.notes?.toLowerCase().includes(term) ||
-      b.payment_reference?.toLowerCase().includes(term) ||
-      b.payment_sender_name?.toLowerCase().includes(term);
-
-    return matchesFilter && matchesSearch;
-  });
+  // Filter & Search logic for list (if search query provided)
+  const filteredSearchBookings = searchQuery.trim() !== '' 
+    ? bookings.filter(b => {
+        const term = searchQuery.toLowerCase();
+        return b.contact_phone?.toLowerCase().includes(term) ||
+               b.notes?.toLowerCase().includes(term) ||
+               b.payment_reference?.toLowerCase().includes(term) ||
+               b.payment_sender_name?.toLowerCase().includes(term);
+      })
+    : [];
 
   return (
-    <div className="flex flex-col gap-6 py-8 px-4 md:px-8 text-left max-w-6xl mx-auto w-full">
+    <div className="flex flex-col gap-6 py-8 px-4 md:px-8 text-left max-w-7xl mx-auto w-full">
       {/* Header title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-white">Manage Court Bookings</h2>
-          <p className="text-slate-400 text-sm">Verify references codes, collect cash collections, or enter direct reservations.</p>
+          <p className="text-slate-400 text-sm">View schedules, confirm references, and collect payments.</p>
         </div>
 
         <button
@@ -283,66 +298,96 @@ export default function AdminBookings() {
         </div>
       )}
 
-      {/* Search and Filters */}
-      <div className="flex flex-col gap-4">
-        {/* Search */}
-        <div className="relative w-full max-w-md">
-          <Search size={16} className="absolute left-3.5 top-3.5 text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search by phone, sender name, or reference..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-900 border border-white/5 focus:border-emerald-500 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white focus:outline-none"
-          />
-        </div>
-
-        {/* Filter categories tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-          {Object.keys(ADMIN_CATEGORY_META).map(key => (
-            <button
-              key={key}
-              onClick={() => setActiveFilter(key)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition-all cursor-pointer ${activeFilter === key
-                ? 'bg-white/10 text-white border border-white/10'
-                : 'bg-transparent text-slate-400 hover:text-white'
-                }`}
-            >
-              {ADMIN_CATEGORY_META[key].label}
-            </button>
-          ))}
-          <button
-            onClick={() => setActiveFilter('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition-all cursor-pointer ${activeFilter === 'all'
-              ? 'bg-white/10 text-white border border-white/10'
-              : 'bg-transparent text-slate-400 hover:text-white'
-              }`}
-          >
-            All Bookings
-          </button>
-        </div>
+      {/* Global Search */}
+      <div className="relative w-full max-w-md">
+        <Search size={16} className="absolute left-3.5 top-3.5 text-slate-500" />
+        <input
+          type="text"
+          placeholder="Search bookings by phone, sender name, or reference..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          className="w-full bg-slate-900 border border-white/5 focus:border-emerald-500 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white focus:outline-none"
+        />
       </div>
 
-      {/* Main List */}
       {loading ? (
-        <div className="py-24 flex items-center justify-center">
+        <div className="py-24 flex items-center justify-center w-full">
           <span className="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : filteredBookings.length === 0 ? (
-        <div className="glass border border-white/5 rounded-2xl p-12 text-center text-slate-500">
-          No bookings match the current filter and search query.
-        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredBookings.map(b => (
+        <React.Fragment>
+          {searchQuery.trim() !== '' ? (
+            <div className="flex flex-col gap-4">
+              <h3 className="font-display font-bold text-white text-lg">Search Results</h3>
+              {filteredSearchBookings.length === 0 ? (
+                <div className="glass border border-white/5 rounded-2xl p-12 text-center text-slate-500">
+                  No bookings match "{searchQuery}".
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {filteredSearchBookings.map(b => (
+                    <AdminBookingCardDetails
+                      key={b.id}
+                      booking={b}
+                      onVerify={handleVerify}
+                      onCancel={handleCancel}
+                      onCollectCash={handleCollectCash}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 xl:gap-8 items-start">
+              {/* Left Side: Calendar Grid */}
+              <div className="w-full">
+                <AdminCalendarGrid 
+                  currentDate={currentMonth}
+                  onMonthChange={setCurrentMonth}
+                  selectedDay={selectedDay}
+                  onDaySelect={setSelectedDay}
+                  bookings={bookings}
+                  blockedSlots={blockedSlots}
+                />
+              </div>
+
+              {/* Right Side: Timetable */}
+              <div className="w-full">
+                {selectedDay ? (
+                  <AdminTimetable 
+                    selectedDay={selectedDay}
+                    bookings={bookings}
+                    blockedSlots={blockedSlots}
+                    onBookingClick={setSelectedBookingModal}
+                  />
+                ) : (
+                  <div className="glass border border-white/5 rounded-2xl p-12 text-center text-slate-500 h-full min-h-[400px] flex items-center justify-center">
+                    Select a date on the calendar to view the timetable.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </React.Fragment>
+      )}
+
+      {/* Booking Details Modal */}
+      {selectedBookingModal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedBookingModal(null)}>
+          <div className="w-full max-w-lg relative" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setSelectedBookingModal(null)}
+              className="absolute -top-12 right-0 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
             <AdminBookingCardDetails
-              key={b.id}
-              booking={b}
+              booking={selectedBookingModal}
               onVerify={handleVerify}
               onCancel={handleCancel}
               onCollectCash={handleCollectCash}
             />
-          ))}
+          </div>
         </div>
       )}
 
